@@ -12,6 +12,30 @@ const config = {
   measurementId: "G-LKD3BMCPV9",
 };
 
+export const createUserProfileDocument = async (userAuth, additionalData) => {
+  if (!userAuth) return;
+
+  const userRef = firestore.doc(`users/${userAuth.uid}`);
+  const snapShot = await userRef.get();
+
+  if (!snapShot.exists) {
+    const { displayName, email } = userAuth;
+    const craetedAt = new Date();
+
+    try {
+      await userRef.set({
+        displayName,
+        email,
+        craetedAt,
+        ...additionalData,
+      });
+    } catch (error) {
+      console.log("error creating user", error.message);
+    }
+  }
+  return userRef;
+};
+
 if (!firebase.apps.length) {
   firebase.initializeApp(config);
 } else {
